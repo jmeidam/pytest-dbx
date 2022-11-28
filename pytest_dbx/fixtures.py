@@ -76,7 +76,7 @@ class DBUtilsFixture:
 
 
 @pytest.fixture(scope="session")
-def spark() -> SparkSession:
+def dbx_spark() -> SparkSession:
     """
     This fixture provides a preconfigured SparkSession with Hive and Delta support.
     After the test session, the temporary warehouse directory is deleted.
