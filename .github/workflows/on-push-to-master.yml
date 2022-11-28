@@ -1,0 +1,59 @@
+name: Master Pipeline
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: "poetry"
+
+      - name: Install dependencies and project in dev mode
+        run: |
+          poetry install
+
+      - name: Unit tests
+        run: |
+          poetry run pytest tests
+
+  release-to-pypi:
+    uses: ./.github/workflows/publish_package.yml
+    needs: build-and-test
+    secrets:
+      token: ${{ secrets.PYPI_TOKEN }}
+
+  tag_master:
+    runs-on: ubuntu-latest
+    needs: release-to-pypi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: get version
+        id: get_version
+        run: |
+          VERSION="v$(poetry version -s --dry-run)"
+          echo "master will be tagged with current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: tag master
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.get_version.outputs.version }}
+          message: "Tagged by Github actions"

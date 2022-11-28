@@ -1,0 +1,58 @@
+name: Development Pipeline
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!master"
+
+jobs:
+  check-version-updated:
+    # We must update the version, otherwise the deployment to the feed will fail after the PR is merged
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: fetch tags
+        run: |
+          git fetch --all --tags
+
+      - name: check version
+        run: |
+          LATEST="$(git tag --sort=-version:refname -l "v*" | head -n1)"
+          CURRENT="v$(poetry version -s --dry-run)"
+          echo "Latest tag: $LATEST"
+          echo "Current version: $CURRENT"
+          if [[ "$CURRENT" < "$LATEST" || "$CURRENT" == "$LATEST" ]]; then 
+            echo "must update version. Needs to be higher than current: $CURRENT"
+            exit 1
+          fi
+
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: "poetry"
+
+      - name: Install dependencies and project in dev mode
+        run: |
+          poetry install
+
+      - name: Unit tests
+        run: |
+          poetry run pytest tests
