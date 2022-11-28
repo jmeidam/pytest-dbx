@@ -1,14 +1,19 @@
 # pytest-dbx
 
-Pytest plugin for testing dbx (https://github.com/databrickslabs/dbx) projects.
+Pytest plugin for testing [dbx](https://github.com/databrickslabs/dbx)-based projects.
+
+## Install
+
+To use the fixtures in your project, simply add `pytest-dbx` to your project's dev-dependencies
+(where you would place all your test and build dependencies).
 
 ## Fixtures
 
-In unit tests you can use the spark fixture to have spark session available as in Databricks
+In unit tests you can use the `dbx_spark` fixture to have a spark session available as in Databricks
 
 ```python
-def test_function(spark):
-    sdf = spark.createDataFrame([[1], [2], [3]], ['a'])
+def test_function(dbx_spark):
+    sdf = dbx_spark.createDataFrame([[1], [2], [3]], ['a'])
     assert sdf.count() == 3
 ```
 
