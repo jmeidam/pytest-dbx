@@ -29,32 +29,31 @@ jobs:
         run: |
           poetry run pytest tests
 
-# TODO: Not yet
-#  release-to-pypi:
-#    uses: ./.github/workflows/publish_package.yml
-#    needs: build-and-test
-#    secrets:
-#      token: ${{ secrets.PYPI_TOKEN }}
-#
-#  tag_master:
-#    runs-on: ubuntu-latest
-#    needs: release-to-pypi
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Install poetry
-#        run: pipx install poetry
-#
-#      - name: get version
-#        id: get_version
-#        run: |
-#          VERSION="v$(poetry version -s --dry-run)"
-#          echo "master will be tagged with current version: $VERSION"
-#          echo "version=$VERSION" >> $GITHUB_OUTPUT
-#
-#      - name: tag master
-#        uses: rickstaa/action-create-tag@v1
-#        with:
-#          tag: ${{ steps.get_version.outputs.version }}
-#          message: "Tagged by Github actions"
+  release-to-pypi:
+    uses: ./.github/workflows/publish_package.yml
+    needs: build-and-test
+    secrets:
+      token: ${{ secrets.PYPI_TOKEN }}
+
+  tag_master:
+    runs-on: ubuntu-latest
+    needs: release-to-pypi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: get version
+        id: get_version
+        run: |
+          VERSION="v$(poetry version -s --dry-run)"
+          echo "master will be tagged with current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: tag master
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.get_version.outputs.version }}
+          message: "Tagged by Github actions"
