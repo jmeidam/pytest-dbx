@@ -1,5 +1,7 @@
 # pytest-dbx
 
+> **Use a more maintained [`databricks-labs-pytester` plugin](https://github.com/databrickslabs/pytester) for an extensive fixture set.**
+
 Pytest plugin for testing [dbx](https://github.com/databrickslabs/dbx)-based projects.
 
 ## Install
